@@ -6,25 +6,19 @@ FROM runpod/worker-comfyui:5.8.4-base
 ARG HF_TOKEN=""
 
 # install custom nodes into comfyui
-RUN comfy node install --exit-on-fail derfuu_comfyui_moddednodes --mode remote
-RUN comfy node install --exit-on-fail comfyui-impact-pack
-RUN comfy node install --exit-on-fail comfyui_ipadapter_plus
-RUN comfy node install --exit-on-fail comfyui-advanced-controlnet
-RUN comfy node install --exit-on-fail comfyui_controlnet_aux
-RUN comfy node install --exit-on-fail cg-use-everywhere
-RUN git clone https://github.com/BlenderNeko/ComfyUI_ADV_CLIP_emb /comfyui/custom_nodes/ComfyUI_ADV_CLIP_emb
-RUN comfy node install --exit-on-fail was-node-suite-comfyui
-RUN git clone https://github.com/Suzie1/ComfyUI_Comfyroll_CustomNodes /comfyui/custom_nodes/ComfyUI_Comfyroll_CustomNodes
-RUN git clone https://github.com/Derfuu/Derfuu_ComfyUI_ModdedNodes /comfyui/custom_nodes/Derfuu_ComfyUI_ModdedNodes
-RUN git clone https://github.com/cubiq/ComfyUI_InstantID /comfyui/custom_nodes/ComfyUI_InstantID
-RUN git clone https://github.com/cubiq/ComfyUI_IPAdapter_plus /comfyui/custom_nodes/ComfyUI_IPAdapter_plus
-RUN git clone https://github.com/mav-rik/facerestore_cf /comfyui/custom_nodes/facerestore_cf
-RUN git clone https://github.com/Fannovel16/comfyui_controlnet_aux /comfyui/custom_nodes/comfyui_controlnet_aux
-RUN git clone https://github.com/Kosinkadink/ComfyUI-Advanced-ControlNet /comfyui/custom_nodes/ComfyUI-Advanced-ControlNet
-RUN git clone https://github.com/yolain/ComfyUI-Easy-Use /comfyui/custom_nodes/ComfyUI-Easy-Use
-RUN git clone https://github.com/WASasquatch/was-node-suite-comfyui /comfyui/custom_nodes/was-node-suite-comfyui
-RUN git clone https://github.com/chrisgoringe/cg-use-everywhere /comfyui/custom_nodes/cg-use-everywhere
-RUN git clone https://github.com/AlekPet/ComfyUI_Custom_Nodes_AlekPet /comfyui/custom_nodes/ComfyUI_Custom_Nodes_AlekPet
+RUN cd /comfyui && comfy-node-install \
+    https://github.com/Derfuu/Derfuu_ComfyUI_ModdedNodes \
+    https://github.com/Suzie1/ComfyUI_Comfyroll_CustomNodes \
+    https://github.com/cubiq/ComfyUI_InstantID \
+    https://github.com/cubiq/ComfyUI_IPAdapter_plus \
+    https://github.com/mav-rik/facerestore_cf \
+    https://github.com/Fannovel16/comfyui_controlnet_aux \
+    https://github.com/Kosinkadink/ComfyUI-Advanced-ControlNet \
+    https://github.com/yolain/ComfyUI-Easy-Use \
+    https://github.com/WASasquatch/was-node-suite-comfyui \
+    https://github.com/chrisgoringe/cg-use-everywhere \
+    https://github.com/BlenderNeko/ComfyUI_ADV_CLIP_emb \
+    https://github.com/AlekPet/ComfyUI_Custom_Nodes_AlekPet
 
 # download models into comfyui
 RUN BACKOFFS="10 20 30 60 90" && for i in 1 2 3 4 5; do HF_TOKEN=$HF_TOKEN comfy model download --url 'https://huggingface.co/linsg/AWPainting_v1.5.safetensors/resolve/main/AWPainting_v1.5.safetensors' --relative-path models/checkpoints --filename 'AWPainting_v1.5.safetensors' && break; if [ $i -eq 5 ]; then echo "model-download failed after 5 attempts" >&2; exit 1; fi; SLEEP=$(echo $BACKOFFS | cut -d ' ' -f $i) && echo "model-download attempt $i failed; retrying in $SLEEP seconds" >&2; sleep $SLEEP; done
